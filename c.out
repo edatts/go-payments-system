@@ -1,0 +1,15 @@
+mode: set
+github.com/edatts/go-payment-system/pkg/api/payments/routes.go:11.28,13.2 1 0
+github.com/edatts/go-payment-system/pkg/api/payments/routes.go:15.54,19.2 3 0
+github.com/edatts/go-payment-system/pkg/api/payments/routes.go:21.77,23.2 0 0
+github.com/edatts/go-payment-system/pkg/api/payments/routes.go:25.78,27.2 0 0
+github.com/edatts/go-payment-system/pkg/api/payments/routes.go:29.73,31.2 0 0
+github.com/edatts/go-payment-system/cmd/payments/main.go:5.14,7.2 0 0
+github.com/edatts/go-payment-system/cmd/auth/main.go:10.13,13.37 2 0
+github.com/edatts/go-payment-system/cmd/auth/main.go:13.37,15.3 1 0
+github.com/edatts/go-payment-system/pkg/api/auth/routes.go:11.28,13.2 1 0
+github.com/edatts/go-payment-system/pkg/api/auth/routes.go:15.54,18.2 2 0
+github.com/edatts/go-payment-system/pkg/api/auth/routes.go:20.75,22.2 0 0
+github.com/edatts/go-payment-system/pkg/api/auth/routes.go:24.78,26.2 0 0
+github.com/edatts/go-payment-system/pkg/api/server.go:19.54,24.2 1 0
+github.com/edatts/go-payment-system/pkg/api/server.go:26.30,35.2 5 0
