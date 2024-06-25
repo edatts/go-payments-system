@@ -5,28 +5,26 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/jackc/pgx/v5"
 )
 
 type Handler interface {
 	RegisterRoutes(*mux.Router)
 }
 
-type DBClient interface {
-	Query()
-}
+// type DBClient interface {
+// 	Query()
+// 	Exec()
+// }
 
 type Server struct {
 	addr    string
 	handler Handler
-	db      *pgx.Conn
 }
 
-func NewServer(addr string, handler Handler, db *pgx.Conn) *Server {
+func NewServer(addr string, handler Handler) *Server {
 	return &Server{
 		addr:    addr,
 		handler: handler,
-		db:      db,
 	}
 }
 

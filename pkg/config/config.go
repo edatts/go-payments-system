@@ -13,7 +13,7 @@ type DBConfig struct {
 	Name     string
 }
 
-func (db DBConfig) URL() string {
+func (db DBConfig) PostgresURL() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s", db.User, db.Password, db.Host, db.Port, db.Name)
 }
 
@@ -25,7 +25,7 @@ func GetDBConfig() DBConfig {
 		Port:     parseEnv("DB_PORT", "5432"),
 		User:     parseEnv("DB_USER", "postgres"),
 		Password: parseEnv("DB_PASSWORD", "postgres"),
-		Name:     parseEnv("DB_NAME", "potgres"),
+		Name:     parseEnv("DB_NAME", "postgres"),
 	}
 }
 
