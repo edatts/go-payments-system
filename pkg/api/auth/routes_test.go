@@ -19,7 +19,7 @@ func (m *mockStore) CreateUser(user *types.User) error {
 	return nil
 }
 
-func (m *mockStore) GetUserById(id uint64) (*types.User, error) {
+func (m *mockStore) GetUserById(id int32) (*types.User, error) {
 
 	return &types.User{}, nil
 }

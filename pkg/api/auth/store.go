@@ -18,6 +18,11 @@ func NewStore(db *pgx.Conn) *Store {
 	}
 }
 
+func (s *Store) CreateUser(user *types.User) error {
+
+	return nil
+}
+
 func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	var user = new(types.User)
 
@@ -30,12 +35,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	return user, nil
 }
 
-func (s *Store) CreateUser(user *types.User) error {
-
-	return nil
-}
-
-func (s *Store) GetUserById(id uint64) (*types.User, error) {
+func (s *Store) GetUserById(id int32) (*types.User, error) {
 
 	return &types.User{}, nil
 }

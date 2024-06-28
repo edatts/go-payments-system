@@ -23,12 +23,8 @@ func NewHandler(store types.UserStore) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(router *mux.Router) {
-	router.HandleFunc("/login", h.handleLogin).Methods("POST")
 	router.HandleFunc("/register", h.handleRegister).Methods("POST")
-}
-
-func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
-
+	router.HandleFunc("/login", h.handleLogin).Methods("POST")
 }
 
 func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
@@ -42,7 +38,7 @@ func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	// Validate
-	if err := utils.Validator.Struct(registerUserReq); err != nil {
+	if err := utils.Validate.Struct(registerUserReq); err != nil {
 		errs := err.(validator.ValidationErrors)
 		log.Printf("validation errors: %v", errs)
 		utils.WriteCustomError(rw, http.StatusBadRequest, ErrFailedValidation(errs))
@@ -87,5 +83,9 @@ func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
 	if err := utils.WriteJSON(rw, http.StatusCreated, nil); err != nil {
 		log.Printf("failed writing create user response: %s", err)
 	}
+
+}
+
+func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 
 }

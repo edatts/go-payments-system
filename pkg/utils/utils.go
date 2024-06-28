@@ -8,7 +8,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-var Validator = validator.New(validator.WithRequiredStructEnabled())
+var Validate = validator.New(validator.WithRequiredStructEnabled())
 
 func ReadRequestJSON(req *http.Request, v any) error {
 	if req.Body == nil {
