@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS withdrawals (
+    id BIGSERIAL PRIMARY KEY,
+    account_id INTEGER NOT NULL,
+    currency_id INTEGER NOT NULL,
+    amount BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
