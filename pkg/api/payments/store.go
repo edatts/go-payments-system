@@ -26,7 +26,7 @@ func (s *Store) CreateAccount(acc *types.Account) error {
 func (s *Store) GetAccount(userId int32, currencyTicker string) (*types.Account, error) {
 	var acc = new(types.Account)
 
-	row := s.db.QueryRow(context.Background(), "SELECT * FROM accounts INNER JOIN currency ON accounts.currency_id = currency.id WHERE user_id = ? AND ticker = ?", userId, currencyTicker)
+	row := s.db.QueryRow(context.Background(), "SELECT * FROM accounts INNER JOIN currency ON accounts.currency_id = currency.id WHERE user_id = $1 AND ticker = $2;", userId, currencyTicker)
 	if err := row.Scan(acc); err != nil {
 		return &types.Account{}, fmt.Errorf("failed scanning row into account struct: %w", err)
 	}

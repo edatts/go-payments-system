@@ -10,6 +10,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Handler struct {
@@ -49,8 +50,13 @@ func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
 	//	- Creates account if user not exists
 	// 	- Returns error to caller is user exists
 	user, err := h.store.GetUserByEmail(registerUserReq.Email)
-	if err == nil {
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrUserExists(user.Email))
+	if err == nil && user.Username == registerUserReq.Username {
+		utils.WriteCustomError(rw, http.StatusBadRequest, ErrUsernameExists(user.Username))
+		return
+	}
+
+	if err == nil && user.Email == registerUserReq.Email {
+		utils.WriteCustomError(rw, http.StatusBadRequest, ErrEmailExists(user.Email))
 		return
 	}
 
@@ -87,5 +93,58 @@ func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
+	var loginReq types.LoginRequest
 
+	// Receives JSON payload
+	if err := utils.ReadRequestJSON(req, &loginReq); err != nil {
+		log.Printf("failed reading request json: %s", err)
+		utils.WriteError(rw, http.StatusBadRequest)
+		return
+	}
+
+	// Validate
+	if err := utils.Validate.Struct(loginReq); err != nil {
+		errs := err.(validator.ValidationErrors)
+		log.Printf("validation errors: %v", errs)
+		utils.WriteCustomError(rw, http.StatusBadRequest, ErrFailedValidation(errs))
+		return
+	}
+
+	var (
+		user = new(types.User)
+		err  error
+	)
+	switch {
+	case loginReq.Username != "":
+		user, err = h.store.GetUser(loginReq.Username)
+	case loginReq.Email != "":
+		user, err = h.store.GetUserByEmail(loginReq.Email)
+	}
+
+	switch {
+	case errors.Is(err, pgx.ErrNoRows) && loginReq.Username != "":
+		utils.WriteCustomError(rw, http.StatusBadRequest, ErrUsernameNotExists(loginReq.Username))
+		return
+	case errors.Is(err, pgx.ErrNoRows) && loginReq.Email != "":
+		utils.WriteCustomError(rw, http.StatusBadRequest, ErrEmailNotExists(loginReq.Email))
+		return
+	case err != nil:
+		log.Printf("failed getting user from db: %s", err)
+		utils.WriteError(rw, http.StatusInternalServerError)
+		return
+	}
+
+	err = VerifyPassword(loginReq.Password, user.Password)
+	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+		utils.WriteCustomError(rw, http.StatusBadRequest, ErrWrongPassword)
+		return
+	}
+
+	if err != nil {
+		log.Printf("failed verifying password: %s", err)
+		utils.WriteError(rw, http.StatusInternalServerError)
+		return
+	}
+
+	utils.WriteJSON(rw, http.StatusOK, map[string]string{"JWT": "super-secret-token"})
 }
