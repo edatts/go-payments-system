@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"encoding/base64"
 	"errors"
 	"log"
 	"net/http"
 
+	"github.com/edatts/go-payment-system/pkg/config"
 	"github.com/edatts/go-payment-system/pkg/types"
 	"github.com/edatts/go-payment-system/pkg/utils"
 	"github.com/go-playground/validator/v10"
@@ -146,5 +148,19 @@ func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	utils.WriteJSON(rw, http.StatusOK, map[string]string{"JWT": "super-secret-token"})
+	secret, err := base64.StdEncoding.DecodeString(config.Envs.JWT_SECRET)
+	if err != nil {
+		log.Printf("failed decoding jwt secret from base64: %s", err)
+		utils.WriteError(rw, http.StatusInternalServerError)
+		return
+	}
+
+	token, err := CreateJWT(secret, user.Id)
+	if err != nil {
+		log.Printf("failed creating json web token: %s", err)
+		utils.WriteError(rw, http.StatusInternalServerError)
+		return
+	}
+
+	utils.WriteJSON(rw, http.StatusOK, map[string]string{"JWT": token})
 }

@@ -16,16 +16,23 @@ type envs struct {
 	DB_PASSWORD            string
 	DB_NAME                string
 	JWT_EXPIRATION_SECONDS int
+	JWT_SECRET             string
 }
 
 func init() {
 	Envs = envs{
-		DB_HOST:                parseEnv("DB_HOST", "localhost"),
+		// DB_HOST:                parseEnv("DB_HOST", "localhost"),
+		DB_HOST:                parseEnv("DB_HOST", "db"),
 		DB_PORT:                parseEnv("DB_PORT", "5432"),
 		DB_USER:                parseEnv("DB_USER", "postgres"),
 		DB_PASSWORD:            parseEnv("DB_PASSWORD", "postgres"),
 		DB_NAME:                parseEnv("DB_NAME", "postgres"),
 		JWT_EXPIRATION_SECONDS: parseEnvAsInt("JWT_EXPIRATION_SECONDS", 300), // 5 minutes
+		JWT_SECRET:             parseEnv("JWT_SECRET", ""),
+	}
+
+	if Envs.JWT_SECRET == "" {
+		// panic("No JWT secret provided, base64 encoded JWT secret must be provided.")
 	}
 }
 
@@ -38,7 +45,7 @@ type DBConfig struct {
 }
 
 func (db DBConfig) PostgresURL() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s", db.User, db.Password, db.Host, db.Port, db.Name)
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?connect_timeout=5", db.User, db.Password, db.Host, db.Port, db.Name)
 }
 
 // Checks for and parses environment variables to populate

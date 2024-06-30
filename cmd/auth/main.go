@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("db error: %s", err)
 	}
 
-	server := api.NewServer("localhost:4000", auth.NewHandler(auth.NewStore(dbConn)))
+	server := api.NewServer(":4000", auth.NewHandler(auth.NewStore(dbConn)))
 	if err := server.Run(); err != nil {
 		log.Fatalf("auth server error: %s", err)
 	}

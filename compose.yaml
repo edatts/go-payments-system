@@ -1,13 +1,19 @@
 services:
   auth:
-    build: ./cmd/auth
+    # build: ./cmd/auth
+    build:
+      context: .
+      dockerfile:
+        cmd/auth/Dockerfile
+    ports:
+      - '4000:4000'
     depends_on:
       - db
 
-  payments:
-    build: ./cmd/payments
-    depends_on:
-      - db
+  # payments:
+  #   build: ./cmd/payments
+  #   depends_on:
+  #     - db
 
   db:
     image: postgres:16.3-alpine
@@ -18,8 +24,13 @@ services:
     # ports:
     #   - '5432:5432'
     volumes:
-      - db:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+  db-setup:
+    image: alpine:latest
+    depends_on:
+      - db
+    restart: never
 
 volumes:
-  db:
-    driver: local
+  db-data:
+    external: true
