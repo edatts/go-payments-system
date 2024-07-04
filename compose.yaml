@@ -26,10 +26,13 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
   db-setup:
-    image: alpine:latest
+    build:
+      context: .
+      dockerfile:
+        cmd/migrate/Dockerfile
     depends_on:
       - db
-    restart: never
+    restart: "no"
 
 volumes:
   db-data:

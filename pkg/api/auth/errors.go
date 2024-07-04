@@ -6,25 +6,30 @@ import (
 )
 
 var (
-	ErrWrongPassword = errors.New("incorrect password for user")
+	ErrWrongPassword     = errors.New("incorrect password for user")
+	ErrEmailExists       = errors.New("user with email already exists")
+	ErrEmailNotExists    = errors.New("no user found with email address")
+	ErrUsernameExists    = errors.New("user with username already exists")
+	ErrUsernameNotExists = errors.New("no user found with username")
+	ErrFailedValidation  = errors.New("failed validation")
 )
 
-func ErrEmailExists(email string) error {
-	return fmt.Errorf("user with email (%s) already exists", email)
+func EmailExistsError(email string) error {
+	return fmt.Errorf("%w: %s", ErrEmailExists, email)
 }
 
-func ErrEmailNotExists(email string) error {
-	return fmt.Errorf("no user found with email address (%s)", email)
+func EmailNotExistsError(email string) error {
+	return fmt.Errorf("%w: %s", ErrEmailNotExists, email)
 }
 
-func ErrUsernameExists(username string) error {
-	return fmt.Errorf("user with username (%s) already exists", username)
+func UsernameExistsError(username string) error {
+	return fmt.Errorf("%w: %s", ErrUsernameExists, username)
 }
 
-func ErrUsernameNotExists(username string) error {
-	return fmt.Errorf("no user found with username (%s)", username)
+func UsernameNotExistsError(username string) error {
+	return fmt.Errorf("%w: %s", ErrUsernameNotExists, username)
 }
 
-func ErrFailedValidation(errs error) error {
-	return fmt.Errorf("failed validation: %w", errs)
+func FailedValidationError(errs error) error {
+	return fmt.Errorf("%w: %w", ErrFailedValidation, errs)
 }

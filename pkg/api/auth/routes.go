@@ -43,8 +43,8 @@ func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
 	// Validate
 	if err := utils.Validate.Struct(registerUserReq); err != nil {
 		errs := err.(validator.ValidationErrors)
-		log.Printf("validation errors: %v", errs)
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrFailedValidation(errs))
+		// log.Printf("validation errors: %v", errs)
+		utils.WriteCustomError(rw, http.StatusBadRequest, FailedValidationError(errs))
 		return
 	}
 
@@ -53,12 +53,12 @@ func (h *Handler) handleRegister(rw http.ResponseWriter, req *http.Request) {
 	// 	- Returns error to caller is user exists
 	user, err := h.store.GetUserByEmail(registerUserReq.Email)
 	if err == nil && user.Username == registerUserReq.Username {
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrUsernameExists(user.Username))
+		utils.WriteCustomError(rw, http.StatusBadRequest, UsernameExistsError(user.Username))
 		return
 	}
 
 	if err == nil && user.Email == registerUserReq.Email {
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrEmailExists(user.Email))
+		utils.WriteCustomError(rw, http.StatusBadRequest, EmailExistsError(user.Email))
 		return
 	}
 
@@ -107,8 +107,8 @@ func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 	// Validate
 	if err := utils.Validate.Struct(loginReq); err != nil {
 		errs := err.(validator.ValidationErrors)
-		log.Printf("validation errors: %v", errs)
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrFailedValidation(errs))
+		// log.Printf("validation errors: %v", errs)
+		utils.WriteCustomError(rw, http.StatusBadRequest, FailedValidationError(errs))
 		return
 	}
 
@@ -125,10 +125,10 @@ func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 
 	switch {
 	case errors.Is(err, pgx.ErrNoRows) && loginReq.Username != "":
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrUsernameNotExists(loginReq.Username))
+		utils.WriteCustomError(rw, http.StatusBadRequest, UsernameNotExistsError(loginReq.Username))
 		return
 	case errors.Is(err, pgx.ErrNoRows) && loginReq.Email != "":
-		utils.WriteCustomError(rw, http.StatusBadRequest, ErrEmailNotExists(loginReq.Email))
+		utils.WriteCustomError(rw, http.StatusBadRequest, EmailNotExistsError(loginReq.Email))
 		return
 	case err != nil:
 		log.Printf("failed getting user from db: %s", err)

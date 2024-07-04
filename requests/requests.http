@@ -11,3 +11,13 @@ Content-Type: application/json
     "email": "s.briggs@hotmail.com",
     "password": "abcdefg"
 }
+
+###
+
+POST {{AUTH_URL}}/login
+Content-Type: application/json
+
+{
+    "username": "SusieB",
+    "password": "abcdefgh"
+}

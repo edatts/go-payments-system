@@ -46,7 +46,7 @@ func (s *Store) CreateUser(user *types.User) error {
 func (s *Store) GetUser(username string) (*types.User, error) {
 	var user = new(types.User)
 
-	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE uesrname = $1;", username)
+	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE username = $1;", username)
 	if err := row.Scan(&user.Id, &user.FirstName, &user.LastName, &user.Username, &user.Email, &user.Password, &user.CreatedAt); err != nil {
 		return &types.User{}, fmt.Errorf("failed scanning row: %w", err)
 	}

@@ -1,6 +1,6 @@
 build:
 	go build -o bin/auth cmd/auth/main.go
-	go build -o bin/migrate cmd/migrate/main.go
+	CGO_ENABLED=0 go build -o bin/migrate cmd/migrate/main.go
 
 test:
 	go test -cover -coverprofile=c.out ./...
