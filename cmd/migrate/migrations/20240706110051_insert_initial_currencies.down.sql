@@ -1,0 +1,1 @@
+DELETE FROM currencies WHERE ticker IN ('GBP', 'USD', 'EUR');
