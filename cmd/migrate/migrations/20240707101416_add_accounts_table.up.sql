@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS accounts (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    currency_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users (id),
+    currency_id INTEGER NOT NULL REFERENCES currencies (id),
     balance BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
