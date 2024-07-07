@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/ed25519"
 	"encoding/base64"
 	"errors"
 	"log"
@@ -16,12 +17,20 @@ import (
 )
 
 type Handler struct {
-	store types.UserStore
+	store   types.UserStore
+	jwtPriv ed25519.PrivateKey
 }
 
 func NewHandler(store types.UserStore) *Handler {
+
+	priv, _, err := utils.DecodeJWTSecret(config.Envs.JWT_SECRET)
+	if err != nil {
+		log.Fatalf("failed decoding JWT secret: %s", err)
+	}
+
 	return &Handler{
-		store: store,
+		store:   store,
+		jwtPriv: priv,
 	}
 }
 
@@ -148,14 +157,14 @@ func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	secret, err := base64.StdEncoding.DecodeString(config.Envs.JWT_SECRET)
-	if err != nil {
-		log.Printf("failed decoding jwt secret from base64: %s", err)
-		utils.WriteError(rw, http.StatusInternalServerError)
-		return
-	}
+	// secret, err := base64.StdEncoding.DecodeString(config.Envs.JWT_SECRET)
+	// if err != nil {
+	// 	log.Printf("failed decoding jwt secret from base64: %s", err)
+	// 	utils.WriteError(rw, http.StatusInternalServerError)
+	// 	return
+	// }
 
-	token, err := CreateJWT(secret, user.Id)
+	token, err := CreateJWT(h.jwtPriv, user.Id)
 	if err != nil {
 		log.Printf("failed creating json web token: %s", err)
 		utils.WriteError(rw, http.StatusInternalServerError)
@@ -163,4 +172,29 @@ func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	utils.WriteJSON(rw, http.StatusOK, map[string]string{"JWT": token})
+}
+
+type InternalHandler struct {
+	jwtPub ed25519.PublicKey
+}
+
+func NewInternalHandler() *InternalHandler {
+
+	_, pub, err := utils.DecodeJWTSecret(config.Envs.JWT_SECRET)
+	if err != nil {
+		log.Fatalf("failed decoding JWT secret: %s", err)
+	}
+
+	return &InternalHandler{
+		jwtPub: pub,
+	}
+}
+
+func (h *InternalHandler) RegisterRoutes(router *mux.Router) {
+	router.HandleFunc("/jwt-public-key", h.handleJWTPublicKey).Methods("GET")
+}
+
+func (h *InternalHandler) handleJWTPublicKey(rw http.ResponseWriter, req *http.Request) {
+	encoded := base64.StdEncoding.EncodeToString(h.jwtPub)
+	utils.WriteJSON(rw, http.StatusOK, map[string]string{"publicKey": encoded})
 }
