@@ -1,4 +1,4 @@
-package payments
+package main
 
 import (
 	"log"
@@ -19,7 +19,7 @@ func main() {
 		log.Fatalf("db error: %s", err)
 	}
 
-	server := api.NewServer("localhost:4001", payments.NewHandler(payments.NewStore(dbConn)))
+	server := api.NewServer(":4001", payments.NewHandler(payments.NewStore(dbConn)))
 	if err := server.Run(); err != nil {
 		log.Fatalf("auth server error: %s", err)
 	}
