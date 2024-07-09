@@ -18,7 +18,7 @@ import (
 type CtxKey string
 
 const UserKey = CtxKey("userId")
-const JWTKey = CtxKey("JWTPublicKey")
+const JWTCtxKey = CtxKey("JWTPublicKey")
 
 func GetUserIdFromContext(ctx context.Context) (int32, bool) {
 	val, ok := ctx.Value(UserKey).(int32)
@@ -26,7 +26,7 @@ func GetUserIdFromContext(ctx context.Context) (int32, bool) {
 }
 
 func GetJWTPublicKeyFromContext(ctx context.Context) ([]byte, bool) {
-	val, ok := ctx.Value(JWTKey).([]byte)
+	val, ok := ctx.Value(JWTCtxKey).([]byte)
 	return val, ok
 }
 
