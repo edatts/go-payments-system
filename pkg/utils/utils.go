@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/ed25519"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -39,4 +41,35 @@ func WriteError(rw http.ResponseWriter, status int) {
 
 func WriteCustomError(rw http.ResponseWriter, status int, err error) {
 	http.Error(rw, fmt.Sprintf("%s: %s", http.StatusText(status), err.Error()), status)
+}
+
+func GetTokenFromRequest(req *http.Request) string {
+	return req.Header.Get("Authorization")
+}
+
+func DecodeJWTSecret(jwtSecret string) (ed25519.PrivateKey, ed25519.PublicKey, error) {
+	privateKeyBytes, err := base64.StdEncoding.DecodeString(jwtSecret)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed decoding jwt secret from envs: %w", err)
+	}
+
+	if len(privateKeyBytes) != ed25519.PrivateKeySize {
+		return nil, nil, fmt.Errorf("invalid private key length, expected (%d) got (%d)", ed25519.PrivateKeySize, len(privateKeyBytes))
+	}
+
+	newPriv := ed25519.NewKeyFromSeed(privateKeyBytes[:32])
+
+	for i, b := range privateKeyBytes {
+		if b != newPriv[i] {
+			return nil, nil, fmt.Errorf("provided public key does not match derived public key")
+		}
+	}
+
+	priv := ed25519.PrivateKey(privateKeyBytes)
+	pub, ok := priv.Public().(ed25519.PublicKey)
+	if !ok {
+		return nil, nil, fmt.Errorf("failed asserting crypto public key to ed25519 public key")
+	}
+
+	return priv, pub, nil
 }
