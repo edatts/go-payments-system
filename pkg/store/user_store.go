@@ -5,14 +5,14 @@ import (
 	"fmt"
 
 	"github.com/edatts/go-payment-system/pkg/types"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserStore struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewUserStore(db *pgx.Conn) *UserStore {
+func NewUserStore(db *pgxpool.Pool) *UserStore {
 	return &UserStore{
 		db: db,
 	}

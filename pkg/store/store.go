@@ -6,16 +6,17 @@ import (
 
 	"github.com/edatts/go-payment-system/pkg/types"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Store struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 	*UserStore
 	*PaymentsStore
 }
 
 // type Store struct {
-// 	db *pgx.Conn
+// 	db *pgxpool.Pool
 // }
 
 type Tx struct {
@@ -30,7 +31,7 @@ func (t Tx) Rollback() error {
 	return t.tx.Rollback(context.Background())
 }
 
-func NewStore(db *pgx.Conn) types.Store {
+func NewStore(db *pgxpool.Pool) types.Store {
 	return &Store{
 		db:            db,
 		UserStore:     NewUserStore(db),
