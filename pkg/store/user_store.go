@@ -1,4 +1,4 @@
-package auth
+package store
 
 import (
 	"context"
@@ -8,17 +8,17 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type Store struct {
+type UserStore struct {
 	db *pgx.Conn
 }
 
-func NewStore(db *pgx.Conn) *Store {
-	return &Store{
+func NewUserStore(db *pgx.Conn) *UserStore {
+	return &UserStore{
 		db: db,
 	}
 }
 
-func (s *Store) CreateUser(user *types.User) error {
+func (s *UserStore) CreateUser(user *types.User) error {
 	_, err := s.db.Exec(
 		context.Background(),
 		`INSERT INTO users (
@@ -43,7 +43,7 @@ func (s *Store) CreateUser(user *types.User) error {
 	return nil
 }
 
-func (s *Store) GetUser(username string) (*types.User, error) {
+func (s *UserStore) GetUser(username string) (*types.User, error) {
 	var user = new(types.User)
 
 	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE username = $1;", username)
@@ -54,7 +54,7 @@ func (s *Store) GetUser(username string) (*types.User, error) {
 	return user, nil
 }
 
-func (s *Store) GetUserByEmail(email string) (*types.User, error) {
+func (s *UserStore) GetUserByEmail(email string) (*types.User, error) {
 	var user = new(types.User)
 
 	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE email = $1;", email)
@@ -65,7 +65,7 @@ func (s *Store) GetUserByEmail(email string) (*types.User, error) {
 	return user, nil
 }
 
-func (s *Store) GetUserById(id int32) (*types.User, error) {
+func (s *UserStore) GetUserById(id int32) (*types.User, error) {
 	var user = new(types.User)
 
 	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE id = $1;", id)
