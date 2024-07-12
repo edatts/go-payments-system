@@ -1,6 +1,8 @@
 package types
 
-import "time"
+import (
+	"time"
+)
 
 type RegisterUserRequest struct {
 	FirstName string `json:"firstName" validate:"required"`
@@ -11,20 +13,13 @@ type RegisterUserRequest struct {
 }
 
 type User struct {
-	Id        int32     `json:"id"`
-	FirstName string    `json:"firstName"`
-	LastName  string    `json:"lastName"`
-	Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"createdAt"`
-}
-
-type UserStore interface {
-	CreateUser(*User) error
-	GetUser(username string) (*User, error)
-	GetUserByEmail(email string) (*User, error)
-	GetUserById(id int32) (*User, error)
+	Id        int32
+	FirstName string
+	LastName  string
+	Username  string
+	Email     string
+	Password  string
+	CreatedAt time.Time
 }
 
 type LoginRequest struct {
@@ -34,11 +29,12 @@ type LoginRequest struct {
 }
 
 type Account struct {
-	Id         int32     `json:"id"`
-	UserId     int32     `json:"userId"`
-	CurrencyId int32     `json:"currencyId"`
-	Balance    int64     `json:"balance"`
-	CreatedAt  time.Time `json:"createdAt"`
+	Id         int32
+	UserId     int32
+	CurrencyId int32
+	Balance    int64
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type Currency struct {
@@ -48,19 +44,22 @@ type Currency struct {
 	Decimals string
 }
 
-type Transaction struct {
-	Id         int64 `json:"id"`
-	SenderId   int32 `json:"senderId"`
-	ReceiverId int32 `json:"receiverId"`
-	// SenderName   string   `json:"senderName"`
-	// ReceiverName string   `json:"receiverName"`
-	CurrencyId int32     `json:"currencyId"`
-	Amount     int64     `json:"amount"`
-	CreatedAt  time.Time `json:"createdAt"`
+type TransferRequest struct {
+	RecipientUsername string `json:"recipientUsername" validate:"required"`
+	CurrencyTicker    string `json:"currencyTicker" validate:"required"`
+	Amount            int64  `json:"amount" validate:"required"`
+}
+
+type Transfer struct {
+	Id          int64
+	SenderId    int32
+	RecipientId int32
+	CurrencyId  int32
+	Amount      int64
+	CreatedAt   time.Time
 }
 
 type DepositRequest struct {
-	// AccountId      uint64 `json:"accountId" validate:"required"`
 	CurrencyTicker string `json:"currencyTicker" validate:"required"`
 	Amount         int64  `json:"amount" validate:"required"`
 }
@@ -69,12 +68,11 @@ type Deposit struct {
 	Id         int64
 	AccountId  int32
 	CurrencyId int32
-	Amount     uint64
+	Amount     int64
 	CreatedAt  time.Time
 }
 
 type WithdrawalRequest struct {
-	// AccountId      uint64 `json:"accountId" validate:"required"`
 	CurrencyTicker string `json:"currencyTicker" validate:"required"`
 	Amount         int64  `json:"amount" validate:"required"`
 }
@@ -87,12 +85,6 @@ type Withdrawal struct {
 	CreatedAt  time.Time
 }
 
-type PaymentsStore interface {
-	CreateAccount(*Account) error
-	GetAccount(userId int32, currencyTicker string) (*Account, error)
-	GetAccountBalance(accountId int32) (int64, error)
-	UpdateAccountBalance(accountId int32, balance int64) error
-	CreateTransaction(*Transaction) error
-	CreateDeposit(*Deposit) error
-	CreateWithdrawal(*Withdrawal) error
+type GetJWTPublicKeyResponse struct {
+	PublicKey string
 }
