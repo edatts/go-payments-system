@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS withdrawals (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     account_id INTEGER NOT NULL REFERENCES accounts (id),
     currency_id INTEGER NOT NULL REFERENCES currencies (id),
     amount BIGINT NOT NULL,

@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS currencies (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     name TEXT NOT NULL,
-    ticker TEXT NOT NULL,
+    ticker TEXT NOT NULL UNIQUE,
     decimals smallint NOT NULL
 );

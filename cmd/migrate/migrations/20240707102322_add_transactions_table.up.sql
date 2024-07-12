@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS transactions (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     sender_user_id INTEGER NOT NULL REFERENCES users (id),
     receiver_user_id INTEGER NOT NULL REFERENCES users (id),
     currency INTEGER NOT NULL,
