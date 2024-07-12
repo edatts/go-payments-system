@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS transactions (
+CREATE TABLE IF NOT EXISTS transfers (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     sender_user_id INTEGER NOT NULL REFERENCES users (id),
     receiver_user_id INTEGER NOT NULL REFERENCES users (id),
