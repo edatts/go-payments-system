@@ -8,6 +8,8 @@ import (
 	"net/http"
 
 	"github.com/edatts/go-payment-system/pkg/config"
+	"github.com/edatts/go-payment-system/pkg/jwt"
+	"github.com/edatts/go-payment-system/pkg/store"
 	"github.com/edatts/go-payment-system/pkg/types"
 	"github.com/edatts/go-payment-system/pkg/utils"
 	"github.com/go-playground/validator/v10"
@@ -17,11 +19,11 @@ import (
 )
 
 type Handler struct {
-	store   types.UserStore
+	store   store.UserStorer
 	jwtPriv ed25519.PrivateKey
 }
 
-func NewHandler(store types.UserStore) *Handler {
+func NewHandler(store store.UserStorer) *Handler {
 
 	priv, _, err := utils.DecodeJWTSecret(config.Envs.JWT_SECRET)
 	if err != nil {
@@ -164,14 +166,17 @@ func (h *Handler) handleLogin(rw http.ResponseWriter, req *http.Request) {
 	// 	return
 	// }
 
-	token, err := CreateJWT(h.jwtPriv, user.Id)
+	token, err := jwt.CreateJWT(h.jwtPriv, user.Id)
 	if err != nil {
 		log.Printf("failed creating json web token: %s", err)
 		utils.WriteError(rw, http.StatusInternalServerError)
 		return
 	}
 
-	utils.WriteJSON(rw, http.StatusOK, map[string]string{"JWT": token})
+	if err := utils.WriteJSON(rw, http.StatusOK, map[string]string{"JWT": token}); err != nil {
+		log.Printf("failed writing login response: %s", err)
+		utils.WriteError(rw, http.StatusInternalServerError)
+	}
 }
 
 type InternalHandler struct {
@@ -196,5 +201,8 @@ func (h *InternalHandler) RegisterRoutes(router *mux.Router) {
 
 func (h *InternalHandler) handleJWTPublicKey(rw http.ResponseWriter, req *http.Request) {
 	encoded := base64.StdEncoding.EncodeToString(h.jwtPub)
-	utils.WriteJSON(rw, http.StatusOK, map[string]string{"publicKey": encoded})
+	if err := utils.WriteJSON(rw, http.StatusOK, types.GetJWTPublicKeyResponse{PublicKey: encoded}); err != nil {
+		log.Printf("failed writing login response: %s", err)
+		utils.WriteError(rw, http.StatusInternalServerError)
+	}
 }

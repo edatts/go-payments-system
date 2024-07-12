@@ -24,7 +24,7 @@ func main() {
 		log.Fatalf("failed instantiating postgres storage: %s", err)
 	}
 
-	server := api.NewServer(":4001", payments.NewHandler(store.NewStore(dbConnPool)).Init())
+	server := api.NewServer(":4001", payments.NewHandler(store.NewPaymentsStore(dbConnPool)).Init())
 	if err := server.Run(); err != nil {
 		log.Fatalf("auth server error: %s", err)
 	}

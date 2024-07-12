@@ -13,10 +13,15 @@ import (
 	"github.com/edatts/go-payment-system/pkg/types"
 	"github.com/gorilla/mux"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type mockStore struct {
 	users []*types.User
+}
+
+func (m *mockStore) BeginTx() (pgx.Tx, error) {
+	return &pgxpool.Tx{}, nil
 }
 
 func (m *mockStore) CreateUser(user *types.User) error {

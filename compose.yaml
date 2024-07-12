@@ -5,15 +5,28 @@ services:
       context: .
       dockerfile:
         cmd/auth/Dockerfile
+    restart: always
+    environment:
+      - JWT_SECRET=1NuQoEFO46+QMFQiqX9NjZ62l9Rb0RGCEN5BeJhG8lqnwla/KkEF0UMzS0P7Kv+zRUAe7HVG+uoEuwhFOvgGiQ==
     ports:
       - '4000:4000'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
 
-  # payments:
-  #   build: ./cmd/payments
-  #   depends_on:
-  #     - db
+  payments:
+    build:
+      context: .
+      dockerfile:
+        cmd/payments/Dockerfile
+    restart: always
+    ports:
+      - '4001:4001'
+    depends_on:
+      db:
+        condition: service_healthy
+        restart: true
 
   db:
     image: postgres:16.3-alpine
@@ -21,19 +34,29 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
     # ports:
     #   - '5432:5432'
     volumes:
       - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 1s
+      timeout: 1s
+      retries: 10
+  
+  
   db-setup:
     build:
       context: .
       dockerfile:
         cmd/migrate/Dockerfile
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     restart: "no"
 
 volumes:
   db-data:
-    external: true
+    external: false

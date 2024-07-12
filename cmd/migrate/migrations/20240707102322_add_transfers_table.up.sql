@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS transfers (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    sender_user_id INTEGER NOT NULL REFERENCES users (id),
-    receiver_user_id INTEGER NOT NULL REFERENCES users (id),
+    sender_id INTEGER NOT NULL REFERENCES users (id),
+    recipient_id INTEGER NOT NULL REFERENCES users (id),
     currency INTEGER NOT NULL,
     amount BIGINT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP

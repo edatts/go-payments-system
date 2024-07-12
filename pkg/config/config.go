@@ -30,10 +30,6 @@ func init() {
 		JWT_EXPIRATION_SECONDS: parseEnvAsInt("JWT_EXPIRATION_SECONDS", 300), // 5 minutes
 		JWT_SECRET:             parseEnv("JWT_SECRET", ""),
 	}
-
-	if Envs.JWT_SECRET == "" {
-		// panic("No JWT secret provided, base64 encoded JWT secret must be provided.")
-	}
 }
 
 type DBConfig struct {
@@ -45,11 +41,9 @@ type DBConfig struct {
 }
 
 func (db DBConfig) PostgresURL() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?connect_timeout=5", db.User, db.Password, db.Host, db.Port, db.Name)
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?connect_timeout=10", db.User, db.Password, db.Host, db.Port, db.Name)
 }
 
-// Checks for and parses environment variables to populate
-// and return a DBConfig struct.
 func GetDBConfig() DBConfig {
 	return DBConfig{
 		Host:     Envs.DB_HOST,
@@ -59,16 +53,6 @@ func GetDBConfig() DBConfig {
 		Name:     Envs.DB_NAME,
 	}
 }
-
-// func GetDBConfig() DBConfig {
-// 	return DBConfig{
-// 		Host:     parseEnv("DB_HOST", "localhost"),
-// 		Port:     parseEnv("DB_PORT", "5432"),
-// 		User:     parseEnv("DB_USER", "postgres"),
-// 		Password: parseEnv("DB_PASSWORD", "postgres"),
-// 		Name:     parseEnv("DB_NAME", "postgres"),
-// 	}
-// }
 
 func parseEnv(env, defaultValue string) (value string) {
 	if value = os.Getenv(env); len(value) == 0 {

@@ -19,5 +19,15 @@ Content-Type: application/json
 
 {
     "username": "SusieB",
-    "password": "abcdefgh"
+    "password": "abcdefg"
+}
+
+###
+
+POST {{PAYMENTS_URL}}/deposit
+Content-Type: application/json
+
+{
+    "currencyTicker": "GBP",
+    "amount": 500
 }
