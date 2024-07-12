@@ -5,20 +5,46 @@ import (
 	"fmt"
 
 	"github.com/edatts/go-payment-system/pkg/types"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserStore struct {
-	db *pgxpool.Pool
+	connPool *pgxpool.Pool
+	*UserQueries
 }
 
 func NewUserStore(db *pgxpool.Pool) *UserStore {
 	return &UserStore{
+		connPool:    db,
+		UserQueries: NewUserQueries(db),
+	}
+}
+
+func (u *UserStore) BeginTx() (pgx.Tx, error) {
+	tx, err := u.connPool.Begin(context.Background())
+	if err != nil {
+		return tx, fmt.Errorf("failed starting transaction: %s", err)
+	}
+
+	return tx, nil
+}
+
+func (u *UserStore) WithTx(tx pgx.Tx) *UserQueries {
+	return NewUserQueries(tx)
+}
+
+type UserQueries struct {
+	db Executor
+}
+
+func NewUserQueries(db Executor) *UserQueries {
+	return &UserQueries{
 		db: db,
 	}
 }
 
-func (s *UserStore) CreateUser(user *types.User) error {
+func (s *UserQueries) CreateUser(user *types.User) error {
 	_, err := s.db.Exec(
 		context.Background(),
 		`INSERT INTO users (
@@ -43,7 +69,7 @@ func (s *UserStore) CreateUser(user *types.User) error {
 	return nil
 }
 
-func (s *UserStore) GetUser(username string) (*types.User, error) {
+func (s *UserQueries) GetUser(username string) (*types.User, error) {
 	var user = new(types.User)
 
 	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE username = $1;", username)
@@ -54,7 +80,7 @@ func (s *UserStore) GetUser(username string) (*types.User, error) {
 	return user, nil
 }
 
-func (s *UserStore) GetUserByEmail(email string) (*types.User, error) {
+func (s *UserQueries) GetUserByEmail(email string) (*types.User, error) {
 	var user = new(types.User)
 
 	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE email = $1;", email)
@@ -65,7 +91,7 @@ func (s *UserStore) GetUserByEmail(email string) (*types.User, error) {
 	return user, nil
 }
 
-func (s *UserStore) GetUserById(id int32) (*types.User, error) {
+func (s *UserQueries) GetUserById(id int32) (*types.User, error) {
 	var user = new(types.User)
 
 	row := s.db.QueryRow(context.Background(), "SELECT * FROM users WHERE id = $1;", id)

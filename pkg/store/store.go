@@ -2,48 +2,50 @@ package store
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/edatts/go-payment-system/pkg/types"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
-type Store struct {
-	db *pgxpool.Pool
-	*UserStore
-	*PaymentsStore
+type Executor interface {
+	Query(context.Context, string, ...any) (pgx.Rows, error)
+	QueryRow(context.Context, string, ...any) pgx.Row
+	Exec(context.Context, string, ...any) (pgconn.CommandTag, error)
 }
 
-// type Store struct {
-// 	db *pgxpool.Pool
-// }
-
-type Tx struct {
-	tx pgx.Tx
+type PaymentsQueryHandler interface {
+	GetUser(username string) (*types.User, error)
+	GetUserById(userId int32) (*types.User, error)
+	GetCurrency(ticker string) (*types.Currency, error)
+	GetAccount(userId int32, currencyTicker string) (*types.Account, error)
+	CreateAccount(*types.Account) error
+	UpdateAccountBalance(accountId int32, balance int64) error
+	CreateDeposit(*types.Deposit) error
+	CreateWithdrawal(*types.Withdrawal) error
+	CreateTransfer(*types.Transfer) error
 }
 
-func (t Tx) Commit() error {
-	return t.tx.Commit(context.Background())
+type PaymentsStorer interface {
+	BeginTx() (pgx.Tx, error)
+	WithTx(tx pgx.Tx) PaymentsQueryHandler
+	PaymentsQueryHandler
 }
 
-func (t Tx) Rollback() error {
-	return t.tx.Rollback(context.Background())
+var _ PaymentsQueryHandler = (*PaymentsQueries)(nil)
+var _ PaymentsStorer = (*PaymentsStore)(nil)
+
+type QueryHandler interface {
+	CreateUser(*types.User) error
+	GetUser(username string) (*types.User, error)
+	GetUserByEmail(email string) (*types.User, error)
+	GetUserById(id int32) (*types.User, error)
 }
 
-func NewStore(db *pgxpool.Pool) types.Store {
-	return &Store{
-		db:            db,
-		UserStore:     NewUserStore(db),
-		PaymentsStore: NewPaymentsStore(db),
-	}
+type UserStorer interface {
+	BeginTx() (pgx.Tx, error)
+	QueryHandler
 }
 
-func (s *Store) BeginTx() (types.Tx, error) {
-	tx, err := s.db.Begin(context.Background())
-	if err != nil {
-		return &Tx{tx: tx}, fmt.Errorf("failed starting transaction: %s", err)
-	}
-
-	return &Tx{tx: tx}, nil
-}
+var _ QueryHandler = (*UserQueries)(nil)
+var _ UserStorer = (*UserStore)(nil)

@@ -51,6 +51,10 @@ func GetJWTPublicKeyFromContext(ctx context.Context) ([]byte, bool) {
 // 	return tokenString, nil
 // }
 
+type JWTStore interface {
+	GetUserById(userId int32) (*types.User, error)
+}
+
 func CreateJWT(secret ed25519.PrivateKey, userId int32) (string, error) {
 	var expiration = time.Second * time.Duration(config.Envs.JWT_EXPIRATION_SECONDS)
 
@@ -77,7 +81,7 @@ func ValidateJWT(tokenString string, pubkey ed25519.PublicKey) (*jwt.Token, erro
 	})
 }
 
-func WithJWTAuth(handlerFunc http.HandlerFunc, store types.UserStore) http.HandlerFunc {
+func WithJWTAuth(handlerFunc http.HandlerFunc, store JWTStore) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 
 		// Get token
